@@ -1,39 +1,65 @@
 import streamlit as st
-import random
 
-st.title("⚽️ 축구 선수 능력치 생성기")
+st.title("⚽️ 축구 전술 시뮬레이터")
 st.markdown("---")
 
-# 사용자에게 선수 이름 입력받기
-player_name = st.text_input("좋아하는 축구 선수의 이름을 입력하세요:", "손흥민")
+st.header("1. 경기 상황 선택")
+scenario = st.radio(
+    "현재 어떤 상황에 놓여 있나요?",
+    ("공격수가 골문 앞에서 공을 받은 상황", "수비수가 상대 압박을 받는 상황", "중앙 미드필더가 공을 잡은 상황")
+)
 
-# 능력치 생성 버튼
-if st.button("능력치 생성"):
-    if player_name:
-        # 이름 길이를 기준으로 능력치 계산 (랜덤성 부여)
-        name_length = len(player_name)
-        
-        # '공격', '속도', '수비', '패스' 능력치 계산
-        attack_stat = min(100, (name_length * 8) + random.randint(1, 20))
-        speed_stat = min(100, (name_length * 7) + random.randint(1, 25))
-        defense_stat = min(100, (name_length * 5) + random.randint(1, 30))
-        pass_stat = min(100, (name_length * 6) + random.randint(1, 22))
+st.write("") # UI 간격을 위한 빈 줄
 
-        # 총 능력치 계산
-        total_stat = attack_stat + speed_stat + defense_stat + pass_stat
-        
-        st.header(f"⭐ {player_name} 선수의 능력치")
-        st.write(f"총점: **{total_stat}** (400점 만점)")
-        
-        st.markdown("---")
-        
-        # 능력치 시각화
-        st.subheader("📊 스탯 분포")
-        st.progress(attack_stat / 100, text=f"공격: {attack_stat}")
-        st.progress(speed_stat / 100, text=f"속도: {speed_stat}")
-        st.progress(defense_stat / 100, text=f"수비: {defense_stat}")
-        st.progress(pass_stat / 100, text=f"패스: {pass_stat}")
+# 상황별 선택지 제시 및 결과 출력
+st.header("2. 당신의 선택은?")
+if scenario == "공격수가 골문 앞에서 공을 받은 상황":
+    action = st.radio(
+        "당신의 역할은 공격수입니다. 어떤 플레이를 하시겠습니까?",
+        ("⚽️ 직접 슛을 시도한다", "🏃‍♂️ 드리블로 수비수를 제치고 들어간다", "➡️ 옆에 있는 동료에게 패스한다")
+    )
 
-        st.info("이 능력치는 재미를 위해 생성된 것으로, 실제 데이터와 무관합니다.")
-    else:
-        st.warning("선수 이름을 입력해주세요.")
+    if st.button("결정하기"):
+        if action == "⚽️ 직접 슛을 시도한다":
+            st.success("🎉 좋은 판단입니다! 골로 연결될 확률이 높습니다.")
+            st.write("상대가 예상치 못한 타이밍에 강력한 슛을 날려 골키퍼를 당황시켰습니다.")
+        elif action == "🏃‍♂️ 드리블로 수비수를 제치고 들어간다":
+            st.warning("⚠️ 위험한 선택입니다. 공을 빼앗길 수 있습니다.")
+            st.write("수비수가 이미 자리를 잡고 있어 드리블 공간이 부족했습니다. 공을 빼앗겨 역습의 빌미를 제공했습니다.")
+        elif action == "➡️ 옆에 있는 동료에게 패스한다":
+            st.info("👍 효율적인 선택입니다. 동료에게 더 좋은 기회를 만들어 주었습니다.")
+            st.write("수비수가 자신에게 집중된 틈을 타, 비어있는 동료에게 완벽한 패스를 연결했습니다.")
+
+elif scenario == "수비수가 상대 압박을 받는 상황":
+    action = st.radio(
+        "당신의 역할은 수비수입니다. 어떤 플레이를 하시겠습니까?",
+        ("🦵️ 공을 밖으로 걷어낸다", "🏃‍♂️ 드리블로 압박을 풀어낸다", "➡️ 가까운 동료에게 짧게 패스한다")
+    )
+    
+    if st.button("결정하기"):
+        if action == "🦵️ 공을 밖으로 걷어낸다":
+            st.success("✅ 가장 안전한 선택입니다. 위기를 모면했습니다.")
+            st.write("무리한 빌드업을 시도하는 대신, 공을 걷어내 팀의 수비 라인을 재정비할 시간을 벌었습니다.")
+        elif action == "🏃‍♂️ 드리블로 압박을 풀어낸다":
+            st.error("🚨 최악의 선택입니다. 드리블 미스로 공을 빼앗겼습니다.")
+            st.write("골문 앞에서 공을 빼앗겨 상대 공격수에게 결정적인 득점 기회를 내주었습니다.")
+        elif action == "➡️ 가까운 동료에게 짧게 패스한다":
+            st.warning("⚠️ 동료가 압박에 노출될 수 있습니다.")
+            st.write("패스가 좋았지만, 동료가 이어진 압박에 공을 쉽게 잃어버렸습니다.")
+
+elif scenario == "중앙 미드필더가 공을 잡은 상황":
+    action = st.radio(
+        "당신의 역할은 중앙 미드필더입니다. 어떤 플레이를 하시겠습니까?",
+        ("🔭 전방의 공격수에게 롱 패스", "➡️ 옆의 미드필더와 주고받으며 기회 모색", "🔄 후방 수비수에게 공을 돌려준다")
+    )
+
+    if st.button("결정하기"):
+        if action == "🔭 전방의 공격수에게 롱 패스":
+            st.success("🎯 정확한 롱 패스로 공격의 활로를 열었습니다.")
+            st.write("상대 수비 라인을 무너뜨리는 환상적인 롱 패스로 결정적인 득점 찬스를 만들었습니다.")
+        elif action == "➡️ 옆의 미드필더와 주고받으며 기회 모색":
+            st.info("🤔 안정적인 선택입니다. 하지만 상대 수비가 정비할 시간을 주었습니다.")
+            st.write("볼 소유권을 유지하며 다음 기회를 노리고 있지만, 공격 속도가 늦어져 상대 수비수들이 제자리를 찾았습니다.")
+        elif action == "🔄 후방 수비수에게 공을 돌려준다":
+            st.warning("😓 좋은 선택이 아닙니다. 공격의 흐름이 끊겼습니다.")
+            st.write("공을 후방으로 돌려 공격의 흐름이 끊겼고, 상대 수비수들이 편하게 재정비했습니다.")
