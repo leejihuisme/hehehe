@@ -1,45 +1,35 @@
 import streamlit as st
-import pandas as pd
 
-# 샘플 영화 데이터 생성 (실제로는 CSV 파일 불러오기)
-data = {
-    "title": ["Inception", "Interstellar", "The Dark Knight", "La La Land", "Parasite"],
-    "genre": ["Sci-Fi", "Sci-Fi", "Action", "Romance", "Thriller"],
-    "year": [2010, 2014, 2008, 2016, 2019],
-    "rating": [8.8, 8.6, 9.0, 8.0, 8.6],
-    "poster": [
-        "https://m.media-amazon.com/images/I/51zUbui+gbL._AC_.jpg",
-        "https://m.media-amazon.com/images/I/71n58BfQ3kL._AC_SL1024_.jpg",
-        "https://m.media-amazon.com/images/I/51k0qa6q0-L._AC_.jpg",
-        "https://m.media-amazon.com/images/I/71niXI3lxlL._AC_SL1024_.jpg",
-        "https://m.media-amazon.com/images/I/91PpQG+9ZtL._AC_SL1500_.jpg",
-    ],
-    "summary": [
-        "A thief who steals corporate secrets through dream-sharing technology is given an inverse task.",
-        "A team of explorers travel through a wormhole in space in an attempt to ensure humanity's survival.",
-        "Batman faces the Joker, a criminal mastermind who plunges Gotham into chaos.",
-        "A jazz musician and an aspiring actress fall in love while pursuing their dreams.",
-        "Greed and class discrimination threaten the newly formed symbiotic relationship between two families.",
-    ]
-}
+# 간단한 단어 사전 예시 (실제로는 더 큰 리스트 필요)
+word_list = ["사과", "과자", "자동차", "학교", "고양이", "이발소", "소방서", "서울", "운동", "공원"]
 
-movies = pd.DataFrame(data)
+# 세션 상태 초기화
+if "used_words" not in st.session_state:
+    st.session_state.used_words = []
+if "last_char" not in st.session_state:
+    st.session_state.last_char = None
 
-# Streamlit 앱 UI
-st.title("🎬 영화 추천 앱")
-st.write("장르와 연도를 선택하면 영화 추천을 볼 수 있습니다!")
+st.title("🔗 끝말잇기 게임")
+st.write("단어를 입력해서 끝말잇기를 해보세요!")
 
-# 선택 위젯
-selected_genre = st.selectbox("장르 선택", options=movies["genre"].unique())
-selected_year = st.slider("개봉 연도 선택", int(movies["year"].min()), int(movies["year"].max()))
+# 사용자 입력
+user_word = st.text_input("단어 입력")
 
-# 추천 로직
-filtered = movies[(movies["genre"] == selected_genre) & (movies["year"] >= selected_year)]
+if st.button("제출"):
+    if user_word not in word_list:
+        st.error("사전에 없는 단어입니다!")
+    elif user_word in st.session_state.used_words:
+        st.error("이미 사용한 단어입니다!")
+    else:
+        # 첫 단어이거나, 규칙 확인
+        if st.session_state.last_char is None or user_word[0] == st.session_state.last_char:
+            st.session_state.used_words.append(user_word)
+            st.session_state.last_char = user_word[-1]
+            st.success(f"✅ '{user_word}' 입력 성공! 다음 단어는 '{st.session_state.last_char}'로 시작해야 합니다.")
+        else:
+            st.error(f"❌ 규칙 위반! '{st.session_state.last_char}'(으)로 시작해야 해요.")
 
-if filtered.empty:
-    st.warning("해당 조건에 맞는 영화가 없습니다.")
-else:
-    for _, row in filtered.iterrows():
-        st.subheader(f"{row['title']} ({row['year']}) ⭐{row['rating']}")
-        st.image(row['poster'], width=200)
-        st.write(row['summary'])
+# 지금까지 사용한 단어 출력
+if st.session_state.used_words:
+    st.subheader("📜 지금까지 나온 단어")
+    st.write(" → ".join(st.session_state.used_words))
